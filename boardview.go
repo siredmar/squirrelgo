@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 type BoardView struct {
@@ -14,15 +16,17 @@ type BoardView struct {
 	winTitle      string
 	window        *sdl.Window
 	renderer      *sdl.Renderer
-	canvas        *sdl.Rect
 	tileWidth     int32
 	tileHeight    int32
 	visibleTilesX int32
 	visibleTilesY int32
 	textures      map[string]*sdl.Texture
+	statusBarSize int32
+	font          *ttf.Font
+	statusBar     *sdl.Surface
 }
 
-func (b *BoardView) Init(width int32, heigth int32, title string) (bool, error) {
+func (b *BoardView) Init(width int32, heigth int32, statusbar int32, title string) (bool, error) {
 	b.tileHeight = 45
 	b.tileWidth = 45
 	b.winTitle = title
@@ -31,13 +35,22 @@ func (b *BoardView) Init(width int32, heigth int32, title string) (bool, error) 
 	b.winWidth = b.visibleTilesX * b.tileWidth
 	b.winHeight = b.visibleTilesY * b.tileHeight
 	b.textures = map[string]*sdl.Texture{}
+	b.statusBarSize = statusbar
 
 	var err error
 
 	sdl.Init(sdl.INIT_VIDEO)
 
+	if err := ttf.Init(); err != nil {
+		return false, fmt.Errorf("Failed to initialize TTF: %s\n", err)
+	}
+
+	if b.font, err = ttf.OpenFont("fonts/test.ttf", 32); err != nil {
+		return false, fmt.Errorf("Failed to open font: %s\n", err)
+	}
+
 	b.window, err = sdl.CreateWindow(b.winTitle, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		b.winWidth, b.winHeight, sdl.WINDOW_SHOWN)
+		b.winWidth, b.winHeight+b.statusBarSize, sdl.WINDOW_SHOWN)
 
 	if err != nil {
 		return false, fmt.Errorf("Failed to create window: %s\n", err)
@@ -52,6 +65,7 @@ func (b *BoardView) Init(width int32, heigth int32, title string) (bool, error) 
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	b.renderer.Clear()
 
 	return true, nil
 }
@@ -202,6 +216,27 @@ func (b BoardView) DrawBoard(board [][]Entity) error {
 	return nil
 }
 
-// func (b BoardView) BoardViewUpdate() (bool, error) {
+func (b *BoardView) DrawStatusBar(name string, points int) error {
+	bg := sdl.Rect{0, b.tileHeight * b.visibleTilesY, b.tileWidth * b.visibleTilesX, b.tileHeight*b.visibleTilesY + b.statusBarSize}
+	b.renderer.SetDrawColor(135, 135, 135, 255)
+	b.renderer.FillRect(&bg)
 
-// }
+	var err error
+	str := "Name: " + name + ", Score: " + strconv.Itoa(points)
+	if b.statusBar, err = b.font.RenderUTF8Solid(str, sdl.Color{255, 0, 0, 255}); err != nil {
+		return fmt.Errorf("Failed to render text: %s\n", err)
+	}
+
+	var nameTexture *sdl.Texture
+	if nameTexture, err = b.renderer.CreateTextureFromSurface(b.statusBar); err != nil {
+		return fmt.Errorf("Failed to create texture: %s\n", err)
+	}
+
+	b.renderer.SetDrawColor(255, 255, 55, 255)
+	namePosition := sdl.Rect{20, b.tileHeight*b.visibleTilesY + 2, int32(len(str)) * 9, 20}
+
+	b.renderer.Copy(nameTexture, nil, &namePosition)
+	b.renderer.Present()
+
+	return nil
+}

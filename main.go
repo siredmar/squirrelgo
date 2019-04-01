@@ -10,6 +10,8 @@ import (
 var (
 	boardX int32
 	boardY int32
+	event  sdl.Event
+	quit   bool
 )
 
 func main() {
@@ -55,7 +57,7 @@ func main() {
 	board.AddEntity(createMasterSquirrel(), 10, 5)
 
 	boardView := BoardView{}
-	_, err := boardView.Init(boardX, boardY, "Squirrel")
+	_, err := boardView.Init(boardX, boardY, 25, "Squirrel")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -63,8 +65,24 @@ func main() {
 	if err = boardView.DrawBoard(board.GetBoard()); err != nil {
 		fmt.Println(err)
 	}
-	boardView.DrawGrid(true)
-
-	sdl.Delay(100000)
+	boardView.DrawStatusBar("Play334er", 123)
+	// boardView.DrawGrid(true)
+	for !quit {
+		HandleEvents()
+	}
 	boardView.Cleanup()
+
+}
+
+func HandleEvents() {
+	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch t := event.(type) {
+		case *sdl.QuitEvent:
+			quit = true
+		case *sdl.KeyboardEvent:
+			if t.Keysym.Sym == sdl.K_ESCAPE {
+				quit = true
+			}
+		}
+	}
 }
