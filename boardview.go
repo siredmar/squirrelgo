@@ -10,6 +10,11 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
+type CurrentScore struct {
+	name  string
+	score int
+}
+
 type BoardView struct {
 	winWidth      int32
 	winHeight     int32
@@ -24,6 +29,7 @@ type BoardView struct {
 	statusBarSize int32
 	font          *ttf.Font
 	statusBar     *sdl.Surface
+	score         CurrentScore
 }
 
 func (b *BoardView) Init(width int32, heigth int32, statusbar int32, title string) (bool, error) {
@@ -238,5 +244,18 @@ func (b *BoardView) DrawStatusBar(name string, points int) error {
 	b.renderer.Copy(nameTexture, nil, &namePosition)
 	b.renderer.Present()
 
+	return nil
+}
+
+func (b BoardView) Update(board [][]Entity, trigger chan bool) error {
+	var err error
+	<-trigger
+	err = b.DrawBoard(board)
+	if err != nil {
+		return err
+	}
+
+	b.DrawGrid(true)
+	b.DrawStatusBar("Play334er", 123)
 	return nil
 }
