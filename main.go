@@ -79,7 +79,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	if err = boardView.Update(board.GetBoard()); err != nil {
+	if err = boardView.Update(board.GetBoard(), board.player); err != nil {
 		fmt.Println(err)
 	}
 
@@ -89,7 +89,7 @@ func main() {
 		for {
 			<-t
 			fmt.Println("Update boardview")
-			boardView.Update(board.GetBoard())
+			boardView.Update(board.GetBoard(), board.player)
 		}
 	}(updateTrigger)
 

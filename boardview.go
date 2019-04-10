@@ -246,7 +246,7 @@ func (b *BoardView) DrawStatusBar(name string, points int) error {
 	return nil
 }
 
-func (b BoardView) Update(board [][]Entity) error {
+func (b BoardView) Update(board [][]Entity, player Entity) error {
 	var err error
 
 	err = b.DrawBoard(board)
@@ -254,6 +254,6 @@ func (b BoardView) Update(board [][]Entity) error {
 		return err
 	}
 
-	b.DrawStatusBar("Play334er", 123)
+	b.DrawStatusBar("Play334er", player.getEnergy())
 	return nil
 }
