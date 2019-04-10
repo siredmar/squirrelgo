@@ -191,7 +191,6 @@ func (b BoardView) DrawTile(x, y int32, texture string) (bool, error) {
 
 	b.renderer.Copy(t, &src, &dst)
 	b.renderer.Present()
-
 	return true, nil
 }
 
@@ -247,15 +246,15 @@ func (b *BoardView) DrawStatusBar(name string, points int) error {
 	return nil
 }
 
-func (b BoardView) Update(board [][]Entity, trigger chan bool) error {
+func (b BoardView) Update(board [][]Entity) error {
 	var err error
-	<-trigger
+
 	err = b.DrawBoard(board)
 	if err != nil {
 		return err
 	}
 
-	b.DrawGrid(true)
 	b.DrawStatusBar("Play334er", 123)
+	b.DrawGrid(true)
 	return nil
 }

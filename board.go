@@ -8,7 +8,8 @@ var (
 )
 
 type Board struct {
-	board [][]Entity
+	board  [][]Entity
+	player Entity
 }
 
 func InitBoard(x, y int) Board {
@@ -32,9 +33,13 @@ func (b *Board) Create() {
 	}
 	for y := 0; y < yMax; y++ {
 		for x := 0; x < xMax; x++ {
-			b.board[y][x] = createNone()
+			b.board[y][x] = createNone(x, y)
 		}
 	}
+}
+
+func (b *Board) addPlayer(e Entity) {
+	b.player = e
 }
 
 func (b *Board) AddEntity(e Entity, x, y int) (bool, error) {
@@ -55,10 +60,43 @@ func (b *Board) RemoveEntity(x, y int) (bool, error) {
 	if y >= yMax || y < 0 {
 		return false, fmt.Errorf("Incorrect y position")
 	}
-	b.board[y][x] = createNone()
+	b.board[y][x] = createNone(x, y)
 	return true, nil
 }
 
 func (b Board) GetEntity(x, y int) Entity {
 	return b.board[y][x]
+}
+
+func (b *Board) move(e Entity, newx, newy int) (bool, error) {
+
+	switch v := b.board[newy][newx].(type) {
+
+	default:
+		return false, fmt.Errorf("unexpected type %T", v)
+	case *None:
+		b.board[newy][newx] = e
+		e.move(newx, newy)
+		b.board[newy][newx] = e
+		return true, nil
+	case *Wall:
+		e.updateEnergy(b.board[newy][newx].getEnergy())
+	case *GoodBeast:
+		return true, nil
+	case *BadBeast:
+		return true, nil
+	case *GoodPlant:
+		e.updateEnergy(b.board[newy][newx].getEnergy())
+		e.move(newx, newy)
+		b.board[newy][newx] = e
+		return true, nil
+	case *BadPlant:
+		e.updateEnergy(b.board[newy][newx].getEnergy())
+		e.move(newx, newy)
+		b.board[newy][newx] = e
+		return true, nil
+	case *MasterSquirrel:
+		return false, nil
+	}
+	return false, fmt.Errorf("move: not implemented yet")
 }
