@@ -62,7 +62,7 @@ func (b *BoardView) Init(width int32, heigth int32, statusbar int32, title strin
 		return false, fmt.Errorf("Failed to create window: %s\n", err)
 	}
 
-	b.renderer, err = sdl.CreateRenderer(b.window, -1, sdl.RENDERER_ACCELERATED)
+	b.renderer, err = sdl.CreateRenderer(b.window, -1, sdl.RENDERER_SOFTWARE)
 	if err != nil {
 		return false, fmt.Errorf("Failed to create renderer: %s\n", err)
 	}
@@ -255,6 +255,5 @@ func (b BoardView) Update(board [][]Entity) error {
 	}
 
 	b.DrawStatusBar("Play334er", 123)
-	b.DrawGrid(true)
 	return nil
 }

@@ -154,27 +154,27 @@ func HandleEvents(e chan<- InputEvents) {
 			ret.quit = true
 			e <- ret
 		case *sdl.KeyboardEvent:
-			if t.Keysym.Sym == sdl.K_ESCAPE {
+			if t.Keysym.Sym == sdl.K_ESCAPE && t.State == 1 {
 				ret = InputEvents{}
 				ret.quit = true
 				fmt.Println("Escape")
 				e <- ret
-			} else if t.Keysym.Sym == sdl.K_UP {
+			} else if t.Keysym.Sym == sdl.K_UP && t.State == 1 {
 				ret = InputEvents{}
 				ret.up = true
 				fmt.Println("Up")
 				e <- ret
-			} else if t.Keysym.Sym == sdl.K_RIGHT {
+			} else if t.Keysym.Sym == sdl.K_RIGHT && t.State == 1 {
 				ret = InputEvents{}
 				ret.right = true
 				fmt.Println("Right")
 				e <- ret
-			} else if t.Keysym.Sym == sdl.K_DOWN {
+			} else if t.Keysym.Sym == sdl.K_DOWN && t.State == 1 {
 				ret = InputEvents{}
 				ret.down = true
 				fmt.Println("Down")
 				e <- ret
-			} else if t.Keysym.Sym == sdl.K_LEFT {
+			} else if t.Keysym.Sym == sdl.K_LEFT && t.State == 1 {
 				ret = InputEvents{}
 				ret.left = true
 				fmt.Println("Left")
