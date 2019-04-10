@@ -81,6 +81,7 @@ func (b *Board) move(e Entity, newx, newy int) (bool, error) {
 		return true, nil
 	case *Wall:
 		e.updateEnergy(b.board[newy][newx].getEnergy())
+		return false, nil
 	case *GoodBeast:
 		return true, nil
 	case *BadBeast:
@@ -98,5 +99,4 @@ func (b *Board) move(e Entity, newx, newy int) (bool, error) {
 	case *MasterSquirrel:
 		return false, nil
 	}
-	return false, fmt.Errorf("move: not implemented yet")
 }

@@ -4,25 +4,13 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
-
-	"github.com/veandco/go-sdl2/sdl"
 )
 
 var (
 	boardX int32
 	boardY int32
-	event  sdl.Event
 	quit   bool
 )
-
-type InputEvents struct {
-	up    bool
-	down  bool
-	left  bool
-	right bool
-	quit  bool
-}
 
 var boardView BoardView = BoardView{}
 
@@ -98,39 +86,31 @@ func main() {
 			ev := <-e
 			if ev.quit == true {
 				quit <- true
+				break
 			}
+
+			y := board.player.getY()
+			x := board.player.getX()
+			var s bool
+			newx := x
+			newy := y
+
 			if ev.up == true {
-				y := board.player.getY()
-				x := board.player.getX()
-				fmt.Println("current: ", x, y, "new: ", x, y-1)
-				board.move(board.player, x, y-1)
-				board.AddEntity(createNone(x, y), x, y)
-				trigger <- true
+				newy += -1
+			} else if ev.right == true {
+				newx += 1
+			} else if ev.down == true {
+				newy += 1
+			} else if ev.left == true {
+				newx += -1
 			}
-			if ev.right == true {
-				y := board.player.getY()
-				x := board.player.getX()
-				fmt.Println("current: ", x, y, "new: ", x+1, y)
-				board.move(board.player, x+1, y)
+
+			fmt.Println("current: ", x, y, "new: ", newx, newy)
+			s, _ = board.move(board.player, newx, newy)
+			if s == true {
 				board.AddEntity(createNone(x, y), x, y)
-				trigger <- true
 			}
-			if ev.down == true {
-				y := board.player.getY()
-				x := board.player.getX()
-				fmt.Println("current: ", x, y, "new: ", x, y+1)
-				board.move(board.player, x, y+1)
-				board.AddEntity(createNone(x, y), x, y)
-				trigger <- true
-			}
-			if ev.left == true {
-				y := board.player.getY()
-				x := board.player.getX()
-				fmt.Println("current: ", x, y, "new: ", x-1, y)
-				board.move(board.player, x-1, y)
-				board.AddEntity(createNone(x, y), x, y)
-				trigger <- true
-			}
+			trigger <- true
 		}
 	}(events, updateTrigger, quit)
 
@@ -140,46 +120,4 @@ func main() {
 		os.Exit(0)
 	}
 	boardView.Cleanup()
-}
-
-func HandleEvents(e chan<- InputEvents) {
-	var ret InputEvents
-	fmt.Println("Started go routine HandleEvnts()")
-	for {
-		time.Sleep(time.Millisecond * 50)
-		event := sdl.PollEvent()
-		switch t := event.(type) {
-		case *sdl.QuitEvent:
-			ret = InputEvents{}
-			ret.quit = true
-			e <- ret
-		case *sdl.KeyboardEvent:
-			if t.Keysym.Sym == sdl.K_ESCAPE && t.State == 1 {
-				ret = InputEvents{}
-				ret.quit = true
-				fmt.Println("Escape")
-				e <- ret
-			} else if t.Keysym.Sym == sdl.K_UP && t.State == 1 {
-				ret = InputEvents{}
-				ret.up = true
-				fmt.Println("Up")
-				e <- ret
-			} else if t.Keysym.Sym == sdl.K_RIGHT && t.State == 1 {
-				ret = InputEvents{}
-				ret.right = true
-				fmt.Println("Right")
-				e <- ret
-			} else if t.Keysym.Sym == sdl.K_DOWN && t.State == 1 {
-				ret = InputEvents{}
-				ret.down = true
-				fmt.Println("Down")
-				e <- ret
-			} else if t.Keysym.Sym == sdl.K_LEFT && t.State == 1 {
-				ret = InputEvents{}
-				ret.left = true
-				fmt.Println("Left")
-				e <- ret
-			}
-		}
-	}
 }

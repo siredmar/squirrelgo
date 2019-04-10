@@ -57,7 +57,6 @@ func (b *BoardView) Init(width int32, heigth int32, statusbar int32, title strin
 
 	b.window, err = sdl.CreateWindow(b.winTitle, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		b.winWidth, b.winHeight+b.statusBarSize, sdl.WINDOW_SHOWN)
-
 	if err != nil {
 		return false, fmt.Errorf("Failed to create window: %s\n", err)
 	}
@@ -248,12 +247,12 @@ func (b *BoardView) DrawStatusBar(name string, points int) error {
 
 func (b BoardView) Update(board [][]Entity, player Entity) error {
 	var err error
-
 	err = b.DrawBoard(board)
 	if err != nil {
 		return err
 	}
 
 	b.DrawStatusBar("Play334er", player.getEnergy())
+	b.DrawGrid(true)
 	return nil
 }
