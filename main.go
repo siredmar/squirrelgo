@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 var (
@@ -14,10 +16,22 @@ var (
 
 var boardView BoardView = BoardView{}
 
+func update(board Board, updateTrigger chan bool) int {
+
+	sdl.Do(func() {
+		for {
+			<-updateTrigger
+			fmt.Println("Update boardview")
+			boardView.Update(board.GetBoard(), board.player)
+		}
+	})
+
+	return 1
+}
+
 func main() {
 	events := make(chan InputEvents)
 	updateTrigger := make(chan bool)
-	quit := make(chan bool)
 
 	boardX = 25
 	boardY = 10
@@ -70,22 +84,13 @@ func main() {
 	if err = boardView.Update(board.GetBoard(), board.player); err != nil {
 		fmt.Println(err)
 	}
-
 	go HandleEvents(events)
 
-	go func(t <-chan bool) {
-		for {
-			<-t
-			fmt.Println("Update boardview")
-			boardView.Update(board.GetBoard(), board.player)
-		}
-	}(updateTrigger)
-
-	go func(e chan InputEvents, trigger chan<- bool, q chan<- bool) {
+	go func(e chan InputEvents, trigger chan<- bool) {
 		for {
 			ev := <-e
 			if ev.quit == true {
-				quit <- true
+				os.Exit(0)
 				break
 			}
 
@@ -112,12 +117,17 @@ func main() {
 			}
 			trigger <- true
 		}
-	}(events, updateTrigger, quit)
+	}(events, updateTrigger)
 
-	for {
-		<-quit
-		fmt.Println("exiting")
-		os.Exit(0)
-	}
-	boardView.Cleanup()
+	// os.Exit(..) must run AFTER sdl.Main(..) below; so keep track of exit
+	// status manually outside the closure passed into sdl.Main(..) below
+	var exitcode int
+	sdl.Main(func() {
+		exitcode = update(board, updateTrigger)
+	})
+
+	// os.Exit(..) must run here! If run in sdl.Main(..) above, it will cause
+	// premature quitting of sdl.Main(..) function; resource cleaning deferred
+	// calls/closing of channels may never run
+	os.Exit(exitcode)
 }
