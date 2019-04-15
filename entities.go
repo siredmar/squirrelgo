@@ -2,6 +2,11 @@ package main
 
 import "fmt"
 
+type point struct {
+	x int
+	y int
+}
+
 var idCounter int
 
 type Entity interface {
@@ -11,6 +16,8 @@ type Entity interface {
 	getEnergy() int
 	getX() int
 	getY() int
+	getPath() []point
+	setPath(p []point)
 }
 
 type EntityType struct {
@@ -19,6 +26,7 @@ type EntityType struct {
 	id     int
 	x      int
 	y      int
+	path   []point
 }
 
 type None struct {
@@ -291,4 +299,56 @@ func createMasterSquirrel(x, y int) *MasterSquirrel {
 	e.x = x
 	e.y = y
 	return e
+}
+
+func (e *GoodPlant) setPath(p []point) {
+}
+
+func (e *BadPlant) setPath(p []point) {
+}
+
+func (e *MasterSquirrel) setPath(p []point) {
+	e.path = p
+}
+
+func (e *GoodBeast) setPath(p []point) {
+	e.path = p
+}
+
+func (e *BadBeast) setPath(p []point) {
+	e.path = p
+}
+
+func (e *Wall) setPath(p []point) {
+}
+
+func (e *None) setPath(p []point) {
+}
+
+func (e GoodPlant) getPath() []point {
+	return e.path
+}
+
+func (e BadPlant) getPath() []point {
+	return e.path
+}
+
+func (e MasterSquirrel) getPath() []point {
+	return e.path
+}
+
+func (e GoodBeast) getPath() []point {
+	return e.path
+}
+
+func (e BadBeast) getPath() []point {
+	return e.path
+}
+
+func (e Wall) getPath() []point {
+	return e.path
+}
+
+func (e None) getPath() []point {
+	return e.path
 }

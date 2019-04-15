@@ -112,6 +112,8 @@ func main() {
 
 			fmt.Println("current: ", x, y, "new: ", newx, newy)
 			s, _ = board.move(board.player, newx, newy)
+
+			board.generatePath(board.player, x, y, newx, newy)
 			if s == true {
 				board.AddEntity(createNone(x, y), x, y)
 			}

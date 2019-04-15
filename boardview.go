@@ -94,9 +94,6 @@ func (b BoardView) DrawGrid(enabled bool) {
 				b.renderer.DrawLine(x, 0, x, b.winHeight)
 			}
 		}
-		b.renderer.Present()
-	} else {
-		b.renderer.Clear()
 	}
 }
 
@@ -189,8 +186,28 @@ func (b BoardView) DrawTile(x, y int32, texture string) (bool, error) {
 	dst := sdl.Rect{x * b.tileWidth, y * b.tileHeight, b.tileWidth, b.tileHeight}
 
 	b.renderer.Copy(t, &src, &dst)
-	b.renderer.Present()
 	return true, nil
+}
+
+func (b BoardView) drawPathTile(x, y int32) error {
+	if x >= b.visibleTilesX || x < 0 || y >= b.visibleTilesY || y < 0 {
+		return fmt.Errorf("Error: cannot place tile outside borders: %vx%v", x, y)
+	}
+	rect := sdl.Rect{x*b.tileWidth + 12, y*b.tileHeight + 12, 20, 20}
+	b.renderer.SetDrawColor(0, 0, 255, 255)
+	b.renderer.FillRect(&rect)
+
+	return nil
+}
+
+func (b BoardView) drawPath(e Entity) error {
+	for _, v := range e.getPath() {
+		err := b.drawPathTile(int32(v.x), int32(v.y))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (b BoardView) DrawBoard(board [][]Entity) error {
@@ -240,7 +257,6 @@ func (b *BoardView) DrawStatusBar(name string, points int) error {
 	namePosition := sdl.Rect{20, b.tileHeight*b.visibleTilesY + 2, int32(len(str)) * 9, 20}
 
 	b.renderer.Copy(nameTexture, nil, &namePosition)
-	b.renderer.Present()
 
 	return nil
 }
@@ -252,7 +268,14 @@ func (b BoardView) Update(board [][]Entity, player Entity) error {
 		return err
 	}
 
+	err = b.drawPath(player)
+	if err != nil {
+		return err
+	}
+
 	b.DrawStatusBar("Play334er", player.getEnergy())
 	// b.DrawGrid(true)
+
+	b.renderer.Present()
 	return nil
 }
