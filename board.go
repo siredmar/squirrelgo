@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"reflect"
 
 	astar "github.com/beefsack/go-astar"
 )
@@ -110,7 +111,7 @@ func (b *Board) move(e Entity, newx, newy int) (bool, error) {
 
 func (b *Board) generatePath(e Entity, x, y, xnew, ynew int) {
 	world := ParseWorld(b.board)
-	path, dist, found := astar.Path(world.Tile(1, 1), world.Tile(22, 5))
+	path, dist, found := astar.Path(world.Tile(x, y), world.Tile(xnew, ynew))
 	if !found {
 		fmt.Println("Could not find a path")
 	} else {
@@ -151,3 +152,20 @@ func (b *Board) spawnEntity(e string) error {
 	}
 	return nil
 }
+
+func (b Board) getEntities(v interface{}) []Entity {
+	var x, y int
+	var entities []Entity
+	for y = 0; y < yMax; y++ {
+		for x = 0; x < xMax; x++ {
+			if reflect.TypeOf(b.board[y][x]) == reflect.TypeOf(v) {
+				entities = append(entities, b.board[y][x])
+			}
+		}
+	}
+	return entities
+}
+
+// func (b Board) sortEntitiesDistance(e []Entity, x, y int, rising bool) []Entity {
+
+// }

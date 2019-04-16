@@ -112,8 +112,9 @@ func main() {
 
 			fmt.Println("current: ", x, y, "new: ", newx, newy)
 			s, _ = board.move(board.player, newx, newy)
-
-			board.generatePath(board.player, x, y, newx, newy)
+			a := board.getEntities(&GoodPlant{})
+			fmt.Println(a[0])
+			board.generatePath(board.player, board.player.getX(), board.player.getY(), a[0].getX(), a[0].getY())
 			if s == true {
 				board.AddEntity(createNone(x, y), x, y)
 			}
