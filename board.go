@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"reflect"
-	"sort"
 
 	astar "github.com/beefsack/go-astar"
 )
@@ -115,22 +113,21 @@ func (b *Board) move(e Entity, newx, newy int) (bool, error) {
 	}
 }
 
-func (b *Board) generatePath(e Entity, x, y, xnew, ynew int) {
+func (b *Board) generatePath(x, y, xnew, ynew int) []point {
 	world := ParseWorld(b.board)
-	path, dist, found := astar.Path(world.Tile(x, y), world.Tile(xnew, ynew))
+	path, _, found := astar.Path(world.Tile(x, y), world.Tile(xnew, ynew))
 	if !found {
 		fmt.Println("Could not find a path")
 	} else {
-		fmt.Println(dist)
 		entitypath := []point{}
 		for _, p := range path {
 			pT := p.(*Tile)
-			fmt.Println(pT.X, pT.Y)
 			a := point{pT.X, pT.Y}
 			entitypath = append(entitypath, a)
 		}
-		e.setPath(entitypath)
+		return entitypath
 	}
+	return nil
 }
 
 func (b *Board) spawnEntity(e string) error {
@@ -138,9 +135,8 @@ func (b *Board) spawnEntity(e string) error {
 	for {
 		x := rand.Intn(xMax)
 		y := rand.Intn(yMax)
-		switch v := b.board[y][x].(type) {
+		switch b.board[y][x].(type) {
 		default:
-			fmt.Printf("spawning failed, coordinates already used: %v", v)
 			continue
 		case *None:
 			switch e {
@@ -170,30 +166,4 @@ func (b Board) getEntities(v interface{}) []Entity {
 		}
 	}
 	return entities
-}
-
-type distance struct {
-	dist  float64
-	index int
-}
-
-func (b Board) getEntityByDistance(e []Entity, x, y int, nearest bool) Entity {
-	var s []distance
-	if len(e) <= 0 {
-		return nil
-	}
-
-	for i, entity := range e {
-		d := math.Sqrt(float64(x-entity.getX())*float64(x-entity.getX()) + float64(y-entity.getY())*float64(y-entity.getY()))
-		s = append(s, distance{d, i})
-	}
-	if nearest == true {
-		sort.Sort(distanceSortUp(s))
-	} else {
-		sort.Sort(distanceSortDown(s))
-	}
-	for k, v := range s {
-		fmt.Println(k, v)
-	}
-	return e[s[0].index]
 }

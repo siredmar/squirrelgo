@@ -22,7 +22,6 @@ func update(board Board, updateTrigger chan bool) int {
 	sdl.Do(func() {
 		for {
 			<-updateTrigger
-			fmt.Println("Update boardview")
 			boardView.Update(board.GetBoard(), board.player)
 		}
 	})
@@ -98,16 +97,14 @@ func main() {
 	go func(trigger chan<- bool) {
 		for {
 			entities := board.getEntities(&GoodPlant{})
-			a := board.getEntityByDistance(entities, board.player.getX(), board.player.getY(), true)
+			a := getEntityByAirDistance(entities, board.player.getX(), board.player.getY(), true)
 
 			if a != nil {
 				xnew := a.getX()
 				ynew := a.getY()
-				board.generatePath(board.player, board.player.getX(), board.player.getY(), xnew, ynew)
+				board.player.setPath(board.generatePath(board.player.getX(), board.player.getY(), xnew, ynew))
 				p := board.player.getPath()
-				fmt.Println("next move: ", p[len(p)-2].x, p[len(p)-2].y)
 				board.move(board.player, p[len(p)-2].x, p[len(p)-2].y)
-				fmt.Println(a)
 				time.Sleep(time.Millisecond * 200)
 				trigger <- true
 			}
@@ -141,10 +138,10 @@ func main() {
 
 			// s, _ = board.move(board.player, newx, newy)
 			// entities := board.getEntities(&GoodPlant{})
-			// a := board.getEntityByDistance(entities, board.player.getX(), board.player.getY(), true)
+			// a := getEntityByAirDistance(entities, board.player.getX(), board.player.getY(), true)
 
 			// fmt.Println(a)
-			// board.generatePath(board.player, board.player.getX(), board.player.getY(), a.getX(), a.getY())
+			// board.player.setPath(board.generatePath(board.player.getX(), board.player.getY(), a.getX(), a.getY()))
 			// if s == true {
 			// 	board.AddEntity(createNone(x, y), x, y)
 			// }
