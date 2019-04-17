@@ -10,7 +10,7 @@ type point struct {
 var idCounter int
 
 type Entity interface {
-	nextStep()
+	nextStep(b [][]Entity)
 	move(newx, newy int)
 	updateEnergy(ne int)
 	getEnergy() int
@@ -18,15 +18,18 @@ type Entity interface {
 	getY() int
 	getPath() []point
 	setPath(p []point)
+	setDistance(d float32)
+	getDistance() float32
 }
 
 type EntityType struct {
-	energy int
-	name   string
-	id     int
-	x      int
-	y      int
-	path   []point
+	energy   int
+	name     string
+	id       int
+	x        int
+	y        int
+	path     []point
+	distance float32
 }
 
 type None struct {
@@ -167,30 +170,30 @@ func (e *Wall) updateEnergy(ne int) {
 	e.energy += ne
 }
 
-func (e None) nextStep() {
+func (e None) nextStep(b [][]Entity) {
 }
 
-func (e GoodPlant) nextStep() {
+func (e GoodPlant) nextStep(b [][]Entity) {
 	fmt.Println("nextStee from GoodPlant")
 }
 
-func (e BadPlant) nextStep() {
+func (e BadPlant) nextStep(b [][]Entity) {
 	fmt.Println("nextStee from BadPlant")
 }
 
-func (e MasterSquirrel) nextStep() {
+func (e MasterSquirrel) nextStep(b [][]Entity) {
 	fmt.Println("nextStee from MasterSquirrel")
 }
 
-func (e GoodBeast) nextStep() {
+func (e GoodBeast) nextStep(b [][]Entity) {
 	fmt.Println("nextStee from GoodBeast")
 }
 
-func (e BadBeast) nextStep() {
+func (e BadBeast) nextStep(b [][]Entity) {
 	fmt.Println("nextStee from BadBeast")
 }
 
-func (e Wall) nextStep() {
+func (e Wall) nextStep(b [][]Entity) {
 	fmt.Println("nextStee from Wall")
 }
 
@@ -231,6 +234,7 @@ func createNone(x, y int) *None {
 	e.name = "None"
 	e.x = x
 	e.y = y
+	e.distance = 100000000
 	return e
 
 }
@@ -243,6 +247,7 @@ func createGoodPlant(x, y int) *GoodPlant {
 	e.name = "GoodPlant"
 	e.x = x
 	e.y = y
+	e.distance = 100000000
 	return e
 }
 
@@ -254,6 +259,7 @@ func createBadPlant(x, y int) *BadPlant {
 	e.name = "BadPlant"
 	e.x = x
 	e.y = y
+	e.distance = 100000000
 	return e
 }
 
@@ -265,6 +271,7 @@ func createGoodBeast(x, y int) *GoodBeast {
 	e.name = "GoodBeast"
 	e.x = x
 	e.y = y
+	e.distance = 100000000
 	return e
 }
 
@@ -276,6 +283,7 @@ func createBadBeast(x, y int) *BadBeast {
 	e.name = "BadBeast"
 	e.x = x
 	e.y = y
+	e.distance = 100000000
 	return e
 }
 
@@ -287,6 +295,7 @@ func createWall(x, y int) *Wall {
 	e.name = "Wall"
 	e.x = x
 	e.y = y
+	e.distance = 100000000
 	return e
 }
 
@@ -298,6 +307,7 @@ func createMasterSquirrel(x, y int) *MasterSquirrel {
 	e.name = "MasterSquirrel"
 	e.x = x
 	e.y = y
+	e.distance = 100000000
 	return e
 }
 
@@ -351,4 +361,60 @@ func (e Wall) getPath() []point {
 
 func (e None) getPath() []point {
 	return e.path
+}
+
+func (e GoodPlant) setDistance(d float32) {
+	e.distance = d
+}
+
+func (e BadPlant) setDistance(d float32) {
+	e.distance = d
+}
+
+func (e MasterSquirrel) setDistance(d float32) {
+	e.distance = d
+}
+
+func (e GoodBeast) setDistance(d float32) {
+	e.distance = d
+}
+
+func (e BadBeast) setDistance(d float32) {
+	e.distance = d
+}
+
+func (e Wall) setDistance(d float32) {
+	e.distance = d
+}
+
+func (e None) setDistance(d float32) {
+	e.distance = d
+}
+
+func (e GoodPlant) getDistance() float32 {
+	return e.distance
+}
+
+func (e BadPlant) getDistance() float32 {
+	return e.distance
+}
+
+func (e MasterSquirrel) getDistance() float32 {
+	return e.distance
+}
+
+func (e GoodBeast) getDistance() float32 {
+	return e.distance
+}
+
+func (e BadBeast) getDistance() float32 {
+	return e.distance
+}
+
+func (e Wall) getDistance() float32 {
+	return e.distance
+}
+
+func (e None) getDistance() float32 {
+	return e.distance
 }

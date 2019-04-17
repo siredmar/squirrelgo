@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -63,15 +64,23 @@ func main() {
 	board.AddEntity(createWall(15, 5), 15, 5)
 	board.AddEntity(createWall(14, 4), 14, 5)
 	board.AddEntity(createWall(14, 4), 14, 4)
-	board.AddEntity(createGoodPlant(10, 4), 10, 4)
-	board.AddEntity(createGoodPlant(4, 3), 4, 3)
-	board.AddEntity(createGoodPlant(2, 8), 2, 8)
-	board.AddEntity(createGoodPlant(20, 3), 20, 3)
-	board.AddEntity(createGoodPlant(23, 8), 23, 8)
-	board.AddEntity(createBadPlant(2, 5), 2, 5)
-	board.AddEntity(createBadPlant(7, 7), 7, 7)
-	board.AddEntity(createBadPlant(8, 1), 8, 1)
-	board.AddEntity(createBadPlant(21, 5), 21, 5)
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("badplant")
+	board.spawnEntity("badplant")
+	board.spawnEntity("badplant")
+	board.spawnEntity("badplant")
+	board.spawnEntity("badplant")
+	board.spawnEntity("badplant")
+	board.spawnEntity("badplant")
+	board.spawnEntity("badplant")
+
 	player := createMasterSquirrel(10, 5)
 	board.AddEntity(player, 10, 5)
 	board.addPlayer(player)
@@ -86,6 +95,25 @@ func main() {
 	}
 	go HandleEvents(events)
 
+	go func(trigger chan<- bool) {
+		for {
+			entities := board.getEntities(&GoodPlant{})
+			a := board.getEntityByDistance(entities, board.player.getX(), board.player.getY(), true)
+
+			if a != nil {
+				xnew := a.getX()
+				ynew := a.getY()
+				board.generatePath(board.player, board.player.getX(), board.player.getY(), xnew, ynew)
+				p := board.player.getPath()
+				fmt.Println("next move: ", p[len(p)-2].x, p[len(p)-2].y)
+				board.move(board.player, p[len(p)-2].x, p[len(p)-2].y)
+				fmt.Println(a)
+				time.Sleep(time.Millisecond * 200)
+				trigger <- true
+			}
+		}
+	}(updateTrigger)
+
 	go func(e chan InputEvents, trigger chan<- bool) {
 		for {
 			ev := <-e
@@ -93,44 +121,41 @@ func main() {
 				os.Exit(0)
 				break
 			}
+			// manual controlling the player
 
-			y := board.player.getY()
-			x := board.player.getX()
-			var s bool
-			newx := x
-			newy := y
+			// y := board.player.getY()
+			// x := board.player.getX()
+			// var s bool
+			// newx := x
+			// newy := y
 
-			if ev.up == true {
-				newy += -1
-			} else if ev.right == true {
-				newx += 1
-			} else if ev.down == true {
-				newy += 1
-			} else if ev.left == true {
-				newx += -1
-			}
+			// if ev.up == true {
+			// 	newy += -1
+			// } else if ev.right == true {
+			// 	newx += 1
+			// } else if ev.down == true {
+			// 	newy += 1
+			// } else if ev.left == true {
+			// 	newx += -1
+			// }
 
-			fmt.Println("current: ", x, y, "new: ", newx, newy)
-			s, _ = board.move(board.player, newx, newy)
-			a := board.getEntities(&GoodPlant{})
-			fmt.Println(a[0])
-			board.generatePath(board.player, board.player.getX(), board.player.getY(), a[0].getX(), a[0].getY())
-			if s == true {
-				board.AddEntity(createNone(x, y), x, y)
-			}
-			trigger <- true
+			// s, _ = board.move(board.player, newx, newy)
+			// entities := board.getEntities(&GoodPlant{})
+			// a := board.getEntityByDistance(entities, board.player.getX(), board.player.getY(), true)
+
+			// fmt.Println(a)
+			// board.generatePath(board.player, board.player.getX(), board.player.getY(), a.getX(), a.getY())
+			// if s == true {
+			// 	board.AddEntity(createNone(x, y), x, y)
+			// }
+			// trigger <- true
 		}
 	}(events, updateTrigger)
 
-	// os.Exit(..) must run AFTER sdl.Main(..) below; so keep track of exit
-	// status manually outside the closure passed into sdl.Main(..) below
 	var exitcode int
 	sdl.Main(func() {
 		exitcode = update(board, updateTrigger)
 	})
 
-	// os.Exit(..) must run here! If run in sdl.Main(..) above, it will cause
-	// premature quitting of sdl.Main(..) function; resource cleaning deferred
-	// calls/closing of channels may never run
 	os.Exit(exitcode)
 }

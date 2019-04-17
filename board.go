@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"reflect"
+	"sort"
 
 	astar "github.com/beefsack/go-astar"
 )
@@ -75,15 +77,16 @@ func (b Board) GetEntity(x, y int) Entity {
 }
 
 func (b *Board) move(e Entity, newx, newy int) (bool, error) {
-
+	x := e.getX()
+	y := e.getY()
 	switch v := b.board[newy][newx].(type) {
 
 	default:
 		return false, fmt.Errorf("unexpected type %T", v)
 	case *None:
-		b.board[newy][newx] = e
 		e.move(newx, newy)
 		b.board[newy][newx] = e
+		b.board[y][x] = createNone(x, y)
 		return true, nil
 	case *Wall:
 		e.updateEnergy(b.board[newy][newx].getEnergy())
@@ -96,15 +99,18 @@ func (b *Board) move(e Entity, newx, newy int) (bool, error) {
 		e.updateEnergy(b.board[newy][newx].getEnergy())
 		e.move(newx, newy)
 		b.board[newy][newx] = e
+		b.board[y][x] = createNone(x, y)
 		b.spawnEntity("goodplant")
 		return true, nil
 	case *BadPlant:
 		e.updateEnergy(b.board[newy][newx].getEnergy())
 		e.move(newx, newy)
 		b.board[newy][newx] = e
+		b.board[y][x] = createNone(x, y)
 		b.spawnEntity("badplant")
 		return true, nil
 	case *MasterSquirrel:
+		b.board[y][x] = createNone(x, y)
 		return false, nil
 	}
 }
@@ -166,6 +172,28 @@ func (b Board) getEntities(v interface{}) []Entity {
 	return entities
 }
 
-// func (b Board) sortEntitiesDistance(e []Entity, x, y int, rising bool) []Entity {
+type distance struct {
+	dist  float64
+	index int
+}
 
-// }
+func (b Board) getEntityByDistance(e []Entity, x, y int, nearest bool) Entity {
+	var s []distance
+	if len(e) <= 0 {
+		return nil
+	}
+
+	for i, entity := range e {
+		d := math.Sqrt(float64(x-entity.getX())*float64(x-entity.getX()) + float64(y-entity.getY())*float64(y-entity.getY()))
+		s = append(s, distance{d, i})
+	}
+	if nearest == true {
+		sort.Sort(distanceSortUp(s))
+	} else {
+		sort.Sort(distanceSortDown(s))
+	}
+	for k, v := range s {
+		fmt.Println(k, v)
+	}
+	return e[s[0].index]
+}

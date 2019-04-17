@@ -193,7 +193,7 @@ func (b BoardView) drawPathTile(x, y int32) error {
 	if x >= b.visibleTilesX || x < 0 || y >= b.visibleTilesY || y < 0 {
 		return fmt.Errorf("Error: cannot place tile outside borders: %vx%v", x, y)
 	}
-	rect := sdl.Rect{x*b.tileWidth + 12, y*b.tileHeight + 12, 20, 20}
+	rect := sdl.Rect{x*b.tileWidth + 20, y*b.tileHeight + 20, 10, 10}
 	b.renderer.SetDrawColor(0, 0, 255, 255)
 	b.renderer.FillRect(&rect)
 
@@ -273,7 +273,7 @@ func (b BoardView) Update(board [][]Entity, player Entity) error {
 		return err
 	}
 
-	b.DrawStatusBar("Play334er", player.getEnergy())
+	b.DrawStatusBar("Player", player.getEnergy())
 	// b.DrawGrid(true)
 
 	b.renderer.Present()
