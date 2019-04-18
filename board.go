@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"reflect"
+	"sort"
 
 	astar "github.com/beefsack/go-astar"
 )
@@ -113,8 +115,8 @@ func (b *Board) move(e Entity, newx, newy int) (bool, error) {
 	}
 }
 
-func (b *Board) generatePath(x, y, xnew, ynew int) []point {
-	world := ParseWorld(b.board)
+func generatePath(b [][]Entity, x, y, xnew, ynew int) []point {
+	world := ParseWorld(b)
 	path, _, found := astar.Path(world.Tile(x, y), world.Tile(xnew, ynew))
 	if !found {
 		fmt.Println("Could not find a path")
@@ -166,4 +168,55 @@ func (b Board) getEntities(v interface{}) []Entity {
 		}
 	}
 	return entities
+}
+
+func getEntityByAirDistance(e []Entity, x, y int, nearest bool) Entity {
+	var s []distance
+	if len(e) <= 0 {
+		return nil
+	}
+
+	for i, entity := range e {
+		d := math.Sqrt(float64(x-entity.getX())*float64(x-entity.getX()) + float64(y-entity.getY())*float64(y-entity.getY()))
+		s = append(s, distance{d, i})
+	}
+	if nearest == true {
+		sort.Sort(distanceSortUp(s))
+	} else {
+		sort.Sort(distanceSortDown(s))
+	}
+	return e[s[0].index]
+}
+
+func (b Board) countEntitiesInPath(path []point, entity interface{}) int {
+	count := 0
+	for _, v := range path {
+		if reflect.TypeOf(b.board[v.y][v.x]) == reflect.TypeOf(entity) {
+			count++
+		}
+	}
+	return count
+}
+
+func (b Board) getEntityByPath(board [][]Entity, x, y int, e []Entity, nearest bool) Entity {
+	var s []distance
+	if len(e) <= 0 {
+		return nil
+	}
+
+	for i, entity := range e {
+		p := generatePath(board, x, y, entity.getX(), entity.getY())
+		count := b.countEntitiesInPath(p, &GoodPlant{})
+		s = append(s, distance{float64(count), i})
+	}
+
+	fmt.Println(s)
+	if nearest == true {
+		sort.Sort(distanceSortUp(s))
+	} else {
+		sort.Sort(distanceSortDown(s))
+	}
+	fmt.Println(s)
+	fmt.Println("index: ", e[s[0].index])
+	return e[s[0].index]
 }

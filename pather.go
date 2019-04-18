@@ -24,13 +24,13 @@ const (
 
 // KindCosts map tile kinds to movement costs.
 var KindCosts = map[int]float64{
-	KindNone:           50.0,
-	KindMasterSquirrel: 200.0,
+	KindNone:           200.0,
+	KindMasterSquirrel: 2000.0,
 	KindWall:           100000.0,
-	KindGoodBeast:      100.0,
+	KindGoodBeast:      1000.0,
 	KindBadBeast:       2000.0,
 	KindGoodPlant:      1.0,
-	KindBadPlant:       500.0,
+	KindBadPlant:       5000.0,
 }
 
 // A Tile is a tile in a grid which implements Pather.

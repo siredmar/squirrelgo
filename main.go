@@ -71,6 +71,14 @@ func main() {
 	board.spawnEntity("goodplant")
 	board.spawnEntity("goodplant")
 	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
+	board.spawnEntity("goodplant")
 	board.spawnEntity("badplant")
 	board.spawnEntity("badplant")
 	board.spawnEntity("badplant")
@@ -97,12 +105,13 @@ func main() {
 	go func(trigger chan<- bool) {
 		for {
 			entities := board.getEntities(&GoodPlant{})
-			a := getEntityByAirDistance(entities, board.player.getX(), board.player.getY(), true)
+			// a := getEntityByAirDistance(entities, board.player.getX(), board.player.getY(), true)
+			a := board.getEntityByPath(board.board, board.player.getX(), board.player.getY(), entities, false)
 
 			if a != nil {
 				xnew := a.getX()
 				ynew := a.getY()
-				board.player.setPath(board.generatePath(board.player.getX(), board.player.getY(), xnew, ynew))
+				board.player.setPath(generatePath(board.board, board.player.getX(), board.player.getY(), xnew, ynew))
 				p := board.player.getPath()
 				board.move(board.player, p[len(p)-2].x, p[len(p)-2].y)
 				time.Sleep(time.Millisecond * 200)
@@ -141,7 +150,7 @@ func main() {
 			// a := getEntityByAirDistance(entities, board.player.getX(), board.player.getY(), true)
 
 			// fmt.Println(a)
-			// board.player.setPath(board.generatePath(board.player.getX(), board.player.getY(), a.getX(), a.getY()))
+			// board.player.setPath(generatePath(board.board, board.player.getX(), board.player.getY(), a.getX(), a.getY()))
 			// if s == true {
 			// 	board.AddEntity(createNone(x, y), x, y)
 			// }
