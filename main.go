@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	boardX int32
-	boardY int32
+	boardX int
+	boardY int
 	quit   bool
 )
 
@@ -36,33 +36,33 @@ func main() {
 	boardX = 25
 	boardY = 10
 
-	board := InitBoard(int(boardX), int(boardY))
+	board := InitBoard(xy{boardX, boardY})
 	board.Create()
-	var i int32
+	var i int
 
 	for i = 0; i < boardX; i++ {
-		board.AddEntity(createWall(int(i), 0), int(i), 0)
-		board.AddEntity(createWall(int(i), int(boardY-1)), int(i), int(boardY-1))
+		board.AddEntity(createWall(xy{i, 0}), xy{i, 0})
+		board.AddEntity(createWall(xy{i, boardY - 1}), xy{i, boardY - 1})
 	}
 	for i = 0; i < boardX; i++ {
-		board.AddEntity(createWall(0, int(i)), 0, int(i))
-		board.AddEntity(createWall(int(boardX-1), int(i)), int(boardX-1), int(i))
+		board.AddEntity(createWall(xy{0, i}), xy{0, i})
+		board.AddEntity(createWall(xy{boardX - 1, i}), xy{boardX - 1, i})
 	}
 
-	board.AddEntity(createWall(5, 1), 5, 1)
-	board.AddEntity(createWall(5, 2), 5, 2)
-	board.AddEntity(createWall(5, 3), 5, 3)
-	board.AddEntity(createWall(5, 4), 5, 4)
-	board.AddEntity(createWall(4, 4), 4, 4)
-	board.AddEntity(createWall(3, 4), 3, 4)
-	board.AddEntity(createWall(17, 8), 17, 8)
-	board.AddEntity(createWall(17, 8), 17, 7)
-	board.AddEntity(createWall(17, 6), 17, 6)
-	board.AddEntity(createWall(17, 5), 17, 5)
-	board.AddEntity(createWall(16, 5), 16, 5)
-	board.AddEntity(createWall(15, 5), 15, 5)
-	board.AddEntity(createWall(14, 4), 14, 5)
-	board.AddEntity(createWall(14, 4), 14, 4)
+	board.AddEntity(createWall(xy{5, 1}), xy{5, 1})
+	board.AddEntity(createWall(xy{5, 2}), xy{5, 2})
+	board.AddEntity(createWall(xy{5, 3}), xy{5, 3})
+	board.AddEntity(createWall(xy{5, 4}), xy{5, 4})
+	board.AddEntity(createWall(xy{4, 4}), xy{4, 4})
+	board.AddEntity(createWall(xy{3, 4}), xy{3, 4})
+	board.AddEntity(createWall(xy{17, 8}), xy{17, 8})
+	board.AddEntity(createWall(xy{17, 8}), xy{17, 7})
+	board.AddEntity(createWall(xy{17, 6}), xy{17, 6})
+	board.AddEntity(createWall(xy{17, 5}), xy{17, 5})
+	board.AddEntity(createWall(xy{16, 5}), xy{16, 5})
+	board.AddEntity(createWall(xy{15, 5}), xy{15, 5})
+	board.AddEntity(createWall(xy{14, 4}), xy{14, 5})
+	board.AddEntity(createWall(xy{14, 4}), xy{14, 4})
 	board.spawnEntity("goodplant")
 	board.spawnEntity("goodplant")
 	board.spawnEntity("goodplant")
@@ -112,11 +112,11 @@ func main() {
 	board.spawnEntity("badplant")
 	board.spawnEntity("badplant")
 
-	player := createMasterSquirrel(10, 5)
-	board.AddEntity(player, 10, 5)
+	player := createMasterSquirrel(xy{10, 5})
+	board.AddEntity(player, xy{10, 5})
 	board.addPlayer(player)
 
-	_, err := boardView.Init(boardX, boardY, 25, "Squirrel")
+	_, err := boardView.Init(int32(boardX), int32(boardY), 25, "Squirrel")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -133,9 +133,9 @@ func main() {
 			if a != nil {
 				xnew := a.getX()
 				ynew := a.getY()
-				board.player.setPath(generatePath(board.board, board.player, xnew, ynew))
+				board.player.setPath(generatePath(board.board, board.player, xy{xnew, ynew}))
 				p := board.player.getPath()
-				board.move(board.player, p[len(p)-2].x, p[len(p)-2].y)
+				board.move(board.player, xy{p[len(p)-2].x, p[len(p)-2].y})
 				time.Sleep(time.Millisecond * 200)
 				trigger <- true
 			}

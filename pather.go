@@ -1,9 +1,5 @@
 package main
 
-// pather_test.go implements a basic world and tiles that implement Pather for
-// the sake of testing.  This functionality forms the back end for
-// path_test.go, and serves as an example for how to use A* for a grid.
-
 import (
 	"fmt"
 

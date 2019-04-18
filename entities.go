@@ -230,12 +230,12 @@ func (e *Wall) move(newx, newy int) {
 func (e *None) move(newx, newy int) {
 }
 
-func createNone(x, y int) *None {
+func createNone(c xy) *None {
 	e := new(None)
 	e.energy = -999
 	e.name = "None"
-	e.x = x
-	e.y = y
+	e.x = c.x
+	e.y = c.y
 	e.distance = 100000000
 	e.costs = map[int]float64{
 		KindNone:           1.0,
@@ -249,14 +249,14 @@ func createNone(x, y int) *None {
 	return e
 }
 
-func createGoodPlant(x, y int) *GoodPlant {
+func createGoodPlant(c xy) *GoodPlant {
 	e := new(GoodPlant)
 	e.id = idCounter
 	idCounter++
 	e.energy = 100
 	e.name = "GoodPlant"
-	e.x = x
-	e.y = y
+	e.x = c.x
+	e.y = c.y
 	e.distance = 100000000
 	e.costs = map[int]float64{
 		KindNone:           1.0,
@@ -270,14 +270,14 @@ func createGoodPlant(x, y int) *GoodPlant {
 	return e
 }
 
-func createBadPlant(x, y int) *BadPlant {
+func createBadPlant(c xy) *BadPlant {
 	e := new(BadPlant)
 	e.id = idCounter
 	idCounter++
 	e.energy = -100
 	e.name = "BadPlant"
-	e.x = x
-	e.y = y
+	e.x = c.x
+	e.y = c.y
 	e.distance = 100000000
 	e.costs = map[int]float64{
 		KindNone:           1.0,
@@ -291,14 +291,14 @@ func createBadPlant(x, y int) *BadPlant {
 	return e
 }
 
-func createGoodBeast(x, y int) *GoodBeast {
+func createGoodBeast(c xy) *GoodBeast {
 	e := new(GoodBeast)
 	e.id = idCounter
 	idCounter++
 	e.energy = 200
 	e.name = "GoodBeast"
-	e.x = x
-	e.y = y
+	e.x = c.x
+	e.y = c.y
 	e.distance = 100000000
 	e.costs = map[int]float64{
 		KindNone:           200.0,
@@ -312,14 +312,14 @@ func createGoodBeast(x, y int) *GoodBeast {
 	return e
 }
 
-func createBadBeast(x, y int) *BadBeast {
+func createBadBeast(c xy) *BadBeast {
 	e := new(BadBeast)
 	e.id = idCounter
 	idCounter++
 	e.energy = -150
 	e.name = "BadBeast"
-	e.x = x
-	e.y = y
+	e.x = c.x
+	e.y = c.y
 	e.distance = 100000000
 	e.costs = map[int]float64{
 		KindNone:           200.0,
@@ -333,14 +333,14 @@ func createBadBeast(x, y int) *BadBeast {
 	return e
 }
 
-func createWall(x, y int) *Wall {
+func createWall(c xy) *Wall {
 	e := new(Wall)
 	e.id = idCounter
 	idCounter++
 	e.energy = -10
 	e.name = "Wall"
-	e.x = x
-	e.y = y
+	e.x = c.x
+	e.y = c.y
 	e.distance = 100000000
 	e.costs = map[int]float64{
 		KindNone:           1.0,
@@ -354,14 +354,14 @@ func createWall(x, y int) *Wall {
 	return e
 }
 
-func createMasterSquirrel(x, y int) *MasterSquirrel {
+func createMasterSquirrel(c xy) *MasterSquirrel {
 	e := new(MasterSquirrel)
 	e.id = idCounter
 	idCounter++
 	e.energy = 1000
 	e.name = "MasterSquirrel"
-	e.x = x
-	e.y = y
+	e.x = c.x
+	e.y = c.y
 	e.distance = 100000000
 	e.costs = map[int]float64{
 		KindNone:           2000.0,
