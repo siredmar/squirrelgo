@@ -12,7 +12,6 @@ import (
 
 // Kind* constants refer to tile kinds for input and output.
 const (
-	// KindPlain (.) is a plain tile with a movement cost of 1.
 	KindNone = iota
 	KindMasterSquirrel
 	KindWall
@@ -21,17 +20,6 @@ const (
 	KindGoodPlant
 	KindBadPlant
 )
-
-// KindCosts map tile kinds to movement costs.
-var KindCosts = map[int]float64{
-	KindNone:           200.0,
-	KindMasterSquirrel: 2000.0,
-	KindWall:           100000.0,
-	KindGoodBeast:      1000.0,
-	KindBadBeast:       2000.0,
-	KindGoodPlant:      1.0,
-	KindBadPlant:       5000.0,
-}
 
 // A Tile is a tile in a grid which implements Pather.
 type Tile struct {
@@ -64,7 +52,7 @@ func (t *Tile) PathNeighbors() []astar.Pather {
 // PathNeighborCost returns the movement cost of the directly neighboring tile.
 func (t *Tile) PathNeighborCost(to astar.Pather) float64 {
 	toT := to.(*Tile)
-	return KindCosts[toT.Kind]
+	return t.W.costs[toT.Kind]
 }
 
 // PathEstimatedCost uses Manhattan distance to estimate orthogonal distance
@@ -83,77 +71,29 @@ func (t *Tile) PathEstimatedCost(to astar.Pather) float64 {
 }
 
 // World is a two dimensional map of Tiles.
-type World map[int]map[int]*Tile
+type World struct {
+	world map[int]map[int]*Tile
+	costs map[int]float64
+}
 
 // Tile gets the tile at the given coordinates in the world.
 func (w World) Tile(x, y int) *Tile {
-	if w[x] == nil {
+	if w.world[x] == nil {
 		return nil
 	}
-	return w[x][y]
+	return w.world[x][y]
 }
 
 // SetTile sets a tile at the given coordinates in the world.
 func (w World) SetTile(t *Tile, x, y int) {
-	if w[x] == nil {
-		w[x] = map[int]*Tile{}
+	if w.world[x] == nil {
+		w.world[x] = map[int]*Tile{}
 	}
-	w[x][y] = t
+	w.world[x][y] = t
 	t.X = x
 	t.Y = y
 	t.W = w
 }
-
-// FirstOfKind gets the first tile on the board of a kind, used to get the from
-// and to tiles as there should only be one of each.
-func (w World) FirstOfKind(kind int) *Tile {
-	for _, row := range w {
-		for _, t := range row {
-			if t.Kind == kind {
-				return t
-			}
-		}
-	}
-	return nil
-}
-
-// // From gets the from tile from the world.
-// func (w World) From() *Tile {
-// 	return w.FirstOfKind(KindFrom)
-// }
-
-// // To gets the to tile from the world.
-// func (w World) To() *Tile {
-// 	return w.FirstOfKind(KindTo)
-// }
-
-// // RenderPath renders a path on top of a world.
-// func (w World) RenderPath(path []astar.Pather) string {
-// 	width := len(w)
-// 	if width == 0 {
-// 		return ""
-// 	}
-// 	height := len(w[0])
-// 	pathLocs := map[string]bool{}
-// 	for _, p := range path {
-// 		pT := p.(*Tile)
-// 		pathLocs[fmt.Sprintf("%d,%d", pT.X, pT.Y)] = true
-// 	}
-// 	rows := make([]string, height)
-// 	for x := 0; x < width; x++ {
-// 		for y := 0; y < height; y++ {
-// 			t := w.Tile(x, y)
-// 			r := ' '
-// 			if pathLocs[fmt.Sprintf("%d,%d", x, y)] {
-// 				r = KindRunes[KindPath]
-// 			} else if t != nil {
-// 				r = KindRunes[t.Kind]
-// 			}
-// 			rows[y] += string(r)
-// 		}
-// 	}
-// 	return strings.Join(rows, "\n")
-// }
 
 func getTileType(e Entity) (int, error) {
 	switch v := e.(type) {
@@ -177,8 +117,10 @@ func getTileType(e Entity) (int, error) {
 }
 
 // ParseWorld parses a textual representation of a world into a world map.
-func ParseWorld(board [][]Entity) World {
+func ParseWorld(board [][]Entity, costs map[int]float64) World {
 	w := World{}
+	w.world = map[int]map[int]*Tile{}
+	w.costs = costs
 	for y, row := range board {
 		for x, entity := range row {
 			kind, _ := getTileType(entity)

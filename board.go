@@ -115,9 +115,9 @@ func (b *Board) move(e Entity, newx, newy int) (bool, error) {
 	}
 }
 
-func generatePath(b [][]Entity, x, y, xnew, ynew int) []point {
-	world := ParseWorld(b)
-	path, _, found := astar.Path(world.Tile(x, y), world.Tile(xnew, ynew))
+func generatePath(b [][]Entity, entity Entity, xnew, ynew int) []point {
+	world := ParseWorld(b, entity.getCosts())
+	path, _, found := astar.Path(world.Tile(entity.getX(), entity.getY()), world.Tile(xnew, ynew))
 	if !found {
 		fmt.Println("Could not find a path")
 	} else {
@@ -198,14 +198,14 @@ func (b Board) countEntitiesInPath(path []point, entity interface{}) int {
 	return count
 }
 
-func (b Board) getEntityByPath(board [][]Entity, x, y int, e []Entity, nearest bool) Entity {
+func (b Board) getEntityByPath(board [][]Entity, sourceEntity Entity, e []Entity, nearest bool) Entity {
 	var s []distance
 	if len(e) <= 0 {
 		return nil
 	}
 
 	for i, entity := range e {
-		p := generatePath(board, x, y, entity.getX(), entity.getY())
+		p := generatePath(board, b.player, entity.getX(), entity.getY())
 		count := b.countEntitiesInPath(p, &GoodPlant{})
 		s = append(s, distance{float64(count), i})
 	}

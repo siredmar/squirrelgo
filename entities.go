@@ -20,6 +20,7 @@ type Entity interface {
 	setPath(p []point)
 	setDistance(d float32)
 	getDistance() float32
+	getCosts() map[int]float64
 }
 
 type EntityType struct {
@@ -30,6 +31,7 @@ type EntityType struct {
 	y        int
 	path     []point
 	distance float32
+	costs    map[int]float64
 }
 
 type None struct {
@@ -235,8 +237,16 @@ func createNone(x, y int) *None {
 	e.x = x
 	e.y = y
 	e.distance = 100000000
+	e.costs = map[int]float64{
+		KindNone:           1.0,
+		KindMasterSquirrel: 1.0,
+		KindWall:           1.0,
+		KindGoodBeast:      1.0,
+		KindBadBeast:       1.0,
+		KindGoodPlant:      1.0,
+		KindBadPlant:       1.0,
+	}
 	return e
-
 }
 
 func createGoodPlant(x, y int) *GoodPlant {
@@ -248,6 +258,15 @@ func createGoodPlant(x, y int) *GoodPlant {
 	e.x = x
 	e.y = y
 	e.distance = 100000000
+	e.costs = map[int]float64{
+		KindNone:           1.0,
+		KindMasterSquirrel: 1.0,
+		KindWall:           1.0,
+		KindGoodBeast:      1.0,
+		KindBadBeast:       1.0,
+		KindGoodPlant:      1.0,
+		KindBadPlant:       1.0,
+	}
 	return e
 }
 
@@ -260,6 +279,15 @@ func createBadPlant(x, y int) *BadPlant {
 	e.x = x
 	e.y = y
 	e.distance = 100000000
+	e.costs = map[int]float64{
+		KindNone:           1.0,
+		KindMasterSquirrel: 1.0,
+		KindWall:           1.0,
+		KindGoodBeast:      1.0,
+		KindBadBeast:       1.0,
+		KindGoodPlant:      1.0,
+		KindBadPlant:       1.0,
+	}
 	return e
 }
 
@@ -272,6 +300,15 @@ func createGoodBeast(x, y int) *GoodBeast {
 	e.x = x
 	e.y = y
 	e.distance = 100000000
+	e.costs = map[int]float64{
+		KindNone:           200.0,
+		KindMasterSquirrel: 20000000.0,
+		KindWall:           100000.0,
+		KindGoodBeast:      5000.0,
+		KindBadBeast:       5000.0,
+		KindGoodPlant:      5000.0,
+		KindBadPlant:       5000.0,
+	}
 	return e
 }
 
@@ -284,6 +321,15 @@ func createBadBeast(x, y int) *BadBeast {
 	e.x = x
 	e.y = y
 	e.distance = 100000000
+	e.costs = map[int]float64{
+		KindNone:           200.0,
+		KindMasterSquirrel: 1.0,
+		KindWall:           100000.0,
+		KindGoodBeast:      5000.0,
+		KindBadBeast:       25000.0,
+		KindGoodPlant:      5000.0,
+		KindBadPlant:       5000.0,
+	}
 	return e
 }
 
@@ -296,6 +342,15 @@ func createWall(x, y int) *Wall {
 	e.x = x
 	e.y = y
 	e.distance = 100000000
+	e.costs = map[int]float64{
+		KindNone:           1.0,
+		KindMasterSquirrel: 1.0,
+		KindWall:           1.0,
+		KindGoodBeast:      1.0,
+		KindBadBeast:       1.0,
+		KindGoodPlant:      1.0,
+		KindBadPlant:       1.0,
+	}
 	return e
 }
 
@@ -308,6 +363,15 @@ func createMasterSquirrel(x, y int) *MasterSquirrel {
 	e.x = x
 	e.y = y
 	e.distance = 100000000
+	e.costs = map[int]float64{
+		KindNone:           200.0,
+		KindMasterSquirrel: 2000.0,
+		KindWall:           100000.0,
+		KindGoodBeast:      1000.0,
+		KindBadBeast:       2000.0,
+		KindGoodPlant:      1.0,
+		KindBadPlant:       5000.0,
+	}
 	return e
 }
 
@@ -417,4 +481,32 @@ func (e Wall) getDistance() float32 {
 
 func (e None) getDistance() float32 {
 	return e.distance
+}
+
+func (e GoodPlant) getCosts() map[int]float64 {
+	return e.costs
+}
+
+func (e BadPlant) getCosts() map[int]float64 {
+	return e.costs
+}
+
+func (e MasterSquirrel) getCosts() map[int]float64 {
+	return e.costs
+}
+
+func (e GoodBeast) getCosts() map[int]float64 {
+	return e.costs
+}
+
+func (e BadBeast) getCosts() map[int]float64 {
+	return e.costs
+}
+
+func (e Wall) getCosts() map[int]float64 {
+	return e.costs
+}
+
+func (e None) getCosts() map[int]float64 {
+	return e.costs
 }
