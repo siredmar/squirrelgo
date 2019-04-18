@@ -178,7 +178,7 @@ func getEntityByAirDistance(e []Entity, x, y int, nearest bool) Entity {
 
 	for i, entity := range e {
 		d := math.Sqrt(float64(x-entity.getX())*float64(x-entity.getX()) + float64(y-entity.getY())*float64(y-entity.getY()))
-		s = append(s, distance{d, i})
+		s = append(s, distance{d, 0, i})
 	}
 	if nearest == true {
 		sort.Sort(distanceSortUp(s))
@@ -207,16 +207,13 @@ func (b Board) getEntityByPath(board [][]Entity, sourceEntity Entity, e []Entity
 	for i, entity := range e {
 		p := generatePath(board, b.player, entity.getX(), entity.getY())
 		count := b.countEntitiesInPath(p, &GoodPlant{})
-		s = append(s, distance{float64(count), i})
+		s = append(s, distance{float64(len(p)), count, i})
 	}
 
-	fmt.Println(s)
 	if nearest == true {
 		sort.Sort(distanceSortUp(s))
 	} else {
 		sort.Sort(distanceSortDown(s))
 	}
-	fmt.Println(s)
-	fmt.Println("index: ", e[s[0].index])
 	return e[s[0].index]
 }
