@@ -50,18 +50,34 @@ func main() {
 	go HandleEvents(events)
 
 	go func(trigger chan<- bool) {
+		step := 0
 		for {
-			entities := board.getEntities(&GoodPlant{})
-			a := board.getEntityByPath(board.board, board.player, entities, true)
-			if a != nil {
-				xnew := a.getX()
-				ynew := a.getY()
-				board.player.setPath(generatePath(board.board, board.player, xy{xnew, ynew}))
+
+			goodPlants := board.getEntities(&GoodPlant{})
+			goodPlant := board.getEntityByPath(board.board, board.player, goodPlants, true)
+			if goodPlant != nil {
+				board.player.setPath(generatePath(board.board, board.player, xy{goodPlant.getX(), goodPlant.getY()}))
 				p := board.player.getPath()
 				board.move(board.player, xy{p[len(p)-2].x, p[len(p)-2].y})
-				time.Sleep(time.Millisecond * 200)
-				trigger <- true
 			}
+
+			// beasts
+			for i, beast := range board.beasts {
+				if step%4 == 0 {
+					beast.setPath(generatePath(board.board, beast, xy{board.player.getX(), board.player.getY()}))
+					p := beast.getPath()
+					if len(p) >= 2 {
+						s, _ := board.move(beast, xy{p[len(p)-2].x, p[len(p)-2].y})
+						if s == -1 {
+							board.beasts = append(board.beasts[:i], board.beasts[i+1:]...)
+							board.spawnEntity(&BadBeast{})
+						}
+					}
+				}
+			}
+			step++
+			time.Sleep(time.Millisecond * 200)
+			trigger <- true
 		}
 	}(updateTrigger)
 

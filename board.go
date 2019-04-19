@@ -23,6 +23,7 @@ var (
 type Board struct {
 	board  [][]Entity
 	player Entity
+	beasts []Entity
 }
 
 func InitBoard(c xy) Board {
@@ -55,6 +56,10 @@ func (b *Board) addPlayer(e Entity) {
 	b.player = e
 }
 
+func (b *Board) addBeast(e Entity) {
+	b.beasts = append(b.beasts, e)
+}
+
 func (b *Board) AddEntity(e Entity, c xy) (bool, error) {
 	if c.x >= xMax || c.x < 0 {
 		return false, fmt.Errorf("Incorrect x position")
@@ -81,42 +86,47 @@ func (b Board) GetEntity(c xy) Entity {
 	return b.board[c.y][c.x]
 }
 
-func (b *Board) move(e Entity, new xy) (bool, error) {
+// func (b *Board) moveEntityByIndex(e []Entity, i int, new xy) (bool, error) {
+// 	return b.move(e[i], new)
+// }
+
+func (b *Board) move(e Entity, new xy) (int, error) {
 	x := e.getX()
 	y := e.getY()
 	switch v := b.board[new.y][new.x].(type) {
 
 	default:
-		return false, fmt.Errorf("unexpected type %T", v)
+		return -2, fmt.Errorf("unexpected type %T", v)
 	case *None:
 		e.move(new.x, new.y)
 		b.board[new.y][new.x] = e
 		b.board[y][x] = createNone(xy{x, y})
-		return true, nil
+		return 1, nil
 	case *Wall:
 		e.updateEnergy(b.board[new.y][new.x].getEnergy())
-		return false, nil
+		return 0, nil
 	case *GoodBeast:
-		return true, nil
+		return 1, nil
 	case *BadBeast:
-		return true, nil
+		return 1, nil
 	case *GoodPlant:
 		e.updateEnergy(b.board[new.y][x].getEnergy())
 		e.move(new.x, new.y)
 		b.board[new.y][new.x] = e
 		b.board[y][x] = createNone(xy{x, y})
-		b.spawnEntity("goodplant")
-		return true, nil
+		b.spawnEntity(&GoodPlant{})
+		return 1, nil
 	case *BadPlant:
 		e.updateEnergy(b.board[new.y][new.x].getEnergy())
 		e.move(new.x, new.y)
 		b.board[new.y][new.x] = e
 		b.board[y][x] = createNone(xy{x, y})
-		b.spawnEntity("badplant")
-		return true, nil
+		b.spawnEntity(&BadPlant{})
+		return 1, nil
 	case *MasterSquirrel:
+		b.player.updateEnergy(e.getEnergy())
 		b.board[y][x] = createNone(xy{x, y})
-		return false, nil
+		return -1, nil
 	}
 }
 
@@ -137,7 +147,7 @@ func generatePath(b [][]Entity, entity Entity, new xy) []point {
 	return nil
 }
 
-func (b *Board) spawnEntity(e string) error {
+func (b *Board) spawnEntity(e interface{}) error {
 
 	for {
 		x := rand.Intn(xMax)
@@ -146,14 +156,25 @@ func (b *Board) spawnEntity(e string) error {
 		default:
 			continue
 		case *None:
-			switch e {
+			switch e.(type) {
 			default:
 				return fmt.Errorf("unknown entity type to spawn")
-			case "goodplant":
-				b.AddEntity(createGoodPlant(xy{x, y}), xy{x, y})
+			case *MasterSquirrel:
+				b.AddEntity(createMasterSquirrel(xy{x, y}), xy{x, y})
 				break
-			case "badplant":
+			case *BadPlant:
 				b.AddEntity(createBadPlant(xy{x, y}), xy{x, y})
+				break
+			case *BadBeast:
+				beast := createBadBeast(xy{x, y})
+				b.AddEntity(beast, xy{x, y})
+				b.addBeast(beast)
+				break
+			case *GoodBeast:
+				b.AddEntity(createGoodBeast(xy{x, y}), xy{x, y})
+				break
+			case *GoodPlant:
+				b.AddEntity(createGoodPlant(xy{x, y}), xy{x, y})
 				break
 			}
 		}

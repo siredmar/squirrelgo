@@ -368,7 +368,7 @@ func createMasterSquirrel(c xy) *MasterSquirrel {
 		KindMasterSquirrel: 20000.0,
 		KindWall:           1000000.0,
 		KindGoodBeast:      10000.0,
-		KindBadBeast:       20000.0,
+		KindBadBeast:       200000.0,
 		KindGoodPlant:      1.0,
 		KindBadPlant:       50000.0,
 	}
