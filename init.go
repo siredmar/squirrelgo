@@ -82,7 +82,9 @@ func initEntities(board *Board) {
 	board.AddEntity(player, xy{10, 5})
 	board.addPlayer(player)
 
-	badbeast := createBadBeast(xy{20, 5})
-	board.AddEntity(badbeast, xy{20, 5})
-	board.addBeast(badbeast)
+	board.spawnEntity(&BadBeast{})
+	board.spawnEntity(&BadBeast{})
+
+	board.spawnEntity(&GoodBeast{})
+	board.spawnEntity(&GoodBeast{})
 }

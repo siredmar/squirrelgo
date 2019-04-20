@@ -82,13 +82,19 @@ func (b *Board) RemoveEntity(c xy) (bool, error) {
 	return true, nil
 }
 
+func (b *Board) RemoveBeast(e Entity) bool {
+	for i, v := range b.beasts {
+		if v.getId() == e.getId() {
+			b.beasts = append(b.beasts[:i], b.beasts[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
 func (b Board) GetEntity(c xy) Entity {
 	return b.board[c.y][c.x]
 }
-
-// func (b *Board) moveEntityByIndex(e []Entity, i int, new xy) (bool, error) {
-// 	return b.move(e[i], new)
-// }
 
 func (b *Board) move(e Entity, new xy) (int, error) {
 	x := e.getX()
@@ -110,7 +116,7 @@ func (b *Board) move(e Entity, new xy) (int, error) {
 	case *BadBeast:
 		return 1, nil
 	case *GoodPlant:
-		e.updateEnergy(b.board[new.y][x].getEnergy())
+		e.updateEnergy(b.board[new.y][new.x].getEnergy())
 		e.move(new.x, new.y)
 		b.board[new.y][new.x] = e
 		b.board[y][x] = createNone(xy{x, y})
@@ -124,9 +130,15 @@ func (b *Board) move(e Entity, new xy) (int, error) {
 		b.spawnEntity(&BadPlant{})
 		return 1, nil
 	case *MasterSquirrel:
-		b.player.updateEnergy(e.getEnergy())
-		b.board[y][x] = createNone(xy{x, y})
-		return -1, nil
+		if e.getName() == "BadBeast" {
+			b.player.updateEnergy(e.getEnergy())
+			b.board[y][x] = createNone(xy{x, y})
+			b.RemoveBeast(e)
+			b.spawnEntity(&BadBeast{})
+			return -1, nil
+		} else {
+			return 0, nil
+		}
 	}
 }
 
@@ -134,7 +146,8 @@ func generatePath(b [][]Entity, entity Entity, new xy) []point {
 	world := ParseWorld(b, entity.getCosts())
 	path, _, found := astar.Path(world.Tile(entity.getX(), entity.getY()), world.Tile(new.x, new.y))
 	if !found {
-		fmt.Println("Could not find a path")
+		fmt.Println(entity.getName(), entity.getId(), ": Could not find a path")
+		return nil
 	} else {
 		entitypath := []point{}
 		for _, p := range path {
@@ -144,7 +157,6 @@ func generatePath(b [][]Entity, entity Entity, new xy) []point {
 		}
 		return entitypath
 	}
-	return nil
 }
 
 func (b *Board) spawnEntity(e interface{}) error {
@@ -171,7 +183,9 @@ func (b *Board) spawnEntity(e interface{}) error {
 				b.addBeast(beast)
 				break
 			case *GoodBeast:
-				b.AddEntity(createGoodBeast(xy{x, y}), xy{x, y})
+				beast := createGoodBeast(xy{x, y})
+				b.AddEntity(beast, xy{x, y})
+				b.addBeast(beast)
 				break
 			case *GoodPlant:
 				b.AddEntity(createGoodPlant(xy{x, y}), xy{x, y})

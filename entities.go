@@ -21,6 +21,8 @@ type Entity interface {
 	setDistance(d float32)
 	getDistance() float32
 	getCosts() map[int]float64
+	getId() int
+	getName() string
 }
 
 type EntityType struct {
@@ -367,7 +369,7 @@ func createMasterSquirrel(c xy) *MasterSquirrel {
 		KindNone:           2000.0,
 		KindMasterSquirrel: 20000.0,
 		KindWall:           1000000.0,
-		KindGoodBeast:      10000.0,
+		KindGoodBeast:      200000.0,
 		KindBadBeast:       200000.0,
 		KindGoodPlant:      1.0,
 		KindBadPlant:       50000.0,
@@ -509,4 +511,59 @@ func (e Wall) getCosts() map[int]float64 {
 
 func (e None) getCosts() map[int]float64 {
 	return e.costs
+}
+
+func (e GoodPlant) getId() int {
+	return e.id
+}
+
+func (e BadPlant) getId() int {
+	return e.id
+}
+
+func (e MasterSquirrel) getId() int {
+	return e.id
+}
+
+func (e GoodBeast) getId() int {
+	return e.id
+}
+
+func (e BadBeast) getId() int {
+	return e.id
+}
+
+func (e Wall) getId() int {
+	return e.id
+}
+
+func (e None) getId() int {
+	return e.id
+}
+
+func (e GoodPlant) getName() string {
+	return e.name
+}
+
+func (e BadPlant) getName() string {
+	return e.name
+}
+func (e MasterSquirrel) getName() string {
+	return e.name
+}
+
+func (e GoodBeast) getName() string {
+	return e.name
+}
+
+func (e BadBeast) getName() string {
+	return e.name
+}
+
+func (e Wall) getName() string {
+	return e.name
+}
+
+func (e None) getName() string {
+	return e.name
 }

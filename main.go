@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 
@@ -62,16 +63,20 @@ func main() {
 			}
 
 			// beasts
-			for i, beast := range board.beasts {
+			for _, beast := range board.beasts {
 				if step%4 == 0 {
-					beast.setPath(generatePath(board.board, beast, xy{board.player.getX(), board.player.getY()}))
+					target := xy{}
+					if beast.getName() == "BadBeast" {
+						target.x = board.player.getX()
+						target.y = board.player.getY()
+					} else { // GoodBeast
+						target.x = rand.Intn(xMax)
+						target.y = rand.Intn(yMax)
+					}
+					beast.setPath(generatePath(board.board, beast, target))
 					p := beast.getPath()
 					if len(p) >= 2 {
-						s, _ := board.move(beast, xy{p[len(p)-2].x, p[len(p)-2].y})
-						if s == -1 {
-							board.beasts = append(board.beasts[:i], board.beasts[i+1:]...)
-							board.spawnEntity(&BadBeast{})
-						}
+						board.move(beast, xy{p[len(p)-2].x, p[len(p)-2].y})
 					}
 				}
 			}
